@@ -1,0 +1,6 @@
+## Interface: 11404
+## Title: SimpleSummon
+## Author: TuNombre
+## Notes: Invoca jugadores rápidamente con estilo y fragmentos
+## Version: 1.0
+SimpleSummon.lua
