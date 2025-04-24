@@ -19,8 +19,22 @@ local function GetSoulShardCount()
     return count
 end
 
+-- Verifica si el objetivo es un jugador aliado
+local function IsFriendlyPlayer(targetName)
+    if not UnitExists("target") then return true end -- Si no hay target, asumimos que es por nombre
+    
+    local reaction = UnitReaction("player", "target")
+    return UnitIsPlayer("target") and (reaction and reaction >= 4) -- 4 es neutral, 5+ es friendly
+end
+
 -- Función principal
 local function SimpleSummon(targetName)
+    -- Verificar si se está usando un target enemigo
+    if UnitExists("target") and not IsFriendlyPlayer(targetName) then
+        DEFAULT_CHAT_FRAME:AddMessage("|cffff5555[SimpleSummon]|r El objetivo seleccionado es un enemigo. Debe ser un aliado.")
+        return
+    end
+
     if not targetName or targetName == "" then
         DEFAULT_CHAT_FRAME:AddMessage("|cff66ccff[SimpleSummon]|r Debes seleccionar un jugador o escribir su nombre: /ss NombreDelJugador")
         return
@@ -63,8 +77,20 @@ SLASH_SIMPLESUMMON1 = "/ss"
 SlashCmdList["SIMPLESUMMON"] = function(msg)
     local name = msg
     if name == nil or name == "" then
-        name = UnitName("target")
+        if UnitExists("target") then
+            if not IsFriendlyPlayer(UnitName("target")) then
+                DEFAULT_CHAT_FRAME:AddMessage("|cffff5555[SimpleSummon]|r No puedes invocar a un enemigo.")
+                return
+            end
+            name = UnitName("target")
+        else
+            DEFAULT_CHAT_FRAME:AddMessage("|cff66ccff[SimpleSummon]|r Debes seleccionar un jugador o escribir su nombre: /ss NombreDelJugador")
+            return
+        end
     end
 
     SimpleSummon(name)
 end
+
+-- Mensaje de carga
+DEFAULT_CHAT_FRAME:AddMessage("|cff66ccff[SimpleSummon]|r Addon cargado. Usa /ss [nombre] para invocar jugadores.")
