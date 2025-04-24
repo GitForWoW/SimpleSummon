@@ -5,14 +5,15 @@ local function IsInRaidGroup()
     return GetNumRaidMembers() > 0
 end
 
--- Cuenta los fragmentos de alma en Vanilla (sólo uno por stack)
+-- Cuenta los fragmentos de alma en Turtle WoW (considerando stacks de x3)
 local function GetSoulShardCount()
     local count = 0
     for bag = 0, 4 do
         for slot = 1, GetContainerNumSlots(bag) do
             local itemLink = GetContainerItemLink(bag, slot)
             if itemLink and string.find(itemLink, "Soul Shard") then
-                count = count + 1
+                local _, stackCount = GetContainerItemInfo(bag, slot)
+                count = count + (stackCount or 1) -- Suma la cantidad en el stack (máx 3 en Turtle)
             end
         end
     end
@@ -27,8 +28,19 @@ local function IsFriendlyPlayer(targetName)
     return UnitIsPlayer("target") and (reaction and reaction >= 4) -- 4 es neutral, 5+ es friendly
 end
 
+-- Verifica si el objetivo es el propio jugador
+local function IsSelf(targetName)
+    return targetName and strlower(targetName) == strlower(UnitName("player"))
+end
+
 -- Función principal
 local function SimpleSummon(targetName)
+    -- Verificar si se está intentando auto-invocar
+    if IsSelf(targetName) then
+        DEFAULT_CHAT_FRAME:AddMessage("|cffff5555[SimpleSummon]|r No puedes invocarte a ti mismo.")
+        return
+    end
+
     -- Verificar si se está usando un target enemigo
     if UnitExists("target") and not IsFriendlyPlayer(targetName) then
         DEFAULT_CHAT_FRAME:AddMessage("|cffff5555[SimpleSummon]|r El objetivo seleccionado es un enemigo. Debe ser un aliado.")
