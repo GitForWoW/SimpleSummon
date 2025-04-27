@@ -28,7 +28,7 @@ local function SimpleSummon(targetName)
     end
 
     if not (GetNumPartyMembers() > 0 or GetNumRaidMembers() > 0) then
-        DEFAULT_CHAT_FRAME:AddMessage("|cffff5555[SimpleSummon]|r No estás en grupo.")
+        DEFAULT_CHAT_FRAME:AddMessage("|cffff5555[SimpleSummon]|r No estas en grupo.")
         return
     end
     
